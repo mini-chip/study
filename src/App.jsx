@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./App.css";
+import { v4 as uuidv4 } from "uuid";
 
 function App() {
   const [todo, setTodo] = useState("");
@@ -10,19 +11,23 @@ function App() {
   };
 
   const handleClickButton = () => {
-    setTodoList([...todoList, { todo: todo, checked: false }]);
+    if (!todo.trim()) return;
+    setTodoList([
+      ...todoList,
+      { id: uuidv4(), todo: todo.trim(), checked: false }
+    ]);
     setTodo("");
   };
 
   const handleToggleCheck = (id) => {
-    const updatedTodoList = [...todoList];
-    updatedTodoList[id].checked = !updatedTodoList[id].checked;
+    const updatedTodoList = todoList.map((item) =>
+      item.id === id ? { ...item, checked: !item.checked } : item
+    );
     setTodoList(updatedTodoList);
   };
 
   const handleDelete = (id) => {
-    const updatedTodoList = [...todoList];
-    updatedTodoList.splice(id, 1);
+    const updatedTodoList = todoList.filter((item) => item.id !== id);
     setTodoList(updatedTodoList);
   };
 
@@ -43,20 +48,28 @@ function App() {
       </div>
       <div className="todoSection">
         <ul>
-          {todoList.map((item, id) => (
-            <li key={id} style={{ display: item.checked ? "none" : "block" }}>
-              <label htmlFor={`checkbox${id}`}>
+          {todoList.map((item) => (
+            <li key={item.id} className={item.checked ? "checked" : ""}>
+              <label htmlFor={`checkbox${item.id}`}>
                 <input
                   type="checkbox"
-                  id={`checkbox${id}`}
+                  id={`checkbox${item.id}`}
                   checked={item.checked}
-                  onChange={() => handleToggleCheck(id)}
+                  onChange={() => handleToggleCheck(item.id)}
                 />
                 {item.todo}
               </label>
-              <button type="button" onClick={() => handleDelete(id)}>
-                삭제
-              </button>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => handleToggleCheck(item.id)}
+                >
+                  완료
+                </button>
+                <button type="button" onClick={() => handleDelete(item.id)}>
+                  삭제
+                </button>
+              </div>
             </li>
           ))}
         </ul>
