@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import "./TodoList.css";
-import { v4 as uuidv4 } from "uuid";
 import supabase from "../../main";
 function TodoList() {
   const [todo, setTodo] = useState("");
@@ -8,7 +7,7 @@ function TodoList() {
 
   useEffect(() => {
     const fetchTodos = async () => {
-      const { data } = await supabase.from("todo").select("*");
+      const { data, error } = await supabase.from("todo").select("*");
       setTodoList(data);
     };
     fetchTodos();
@@ -21,24 +20,38 @@ function TodoList() {
   const handleClickButton = async () => {
     //추가버튼을 클릭했을때
     if (!todo.trim()) return;
-    const { data } = await supabase
-      .from("todos")
-      .insert([{ task: todo.trim(), is_complete: false }])
+    const { data, error } = await supabase
+      .from("todo")
+      .insert([{ task: todo.trim(), checked: false }])
       .select();
-    setTodoList([...todoList, { todo: todo.trim(), checked: false }]);
+    setTodoList([...todoList, ...data]);
     setTodo("");
   };
 
-  const handleToggleCheck = (id) => {
+  const handleToggleCheck = async (id, checked) => {
+    const { data, error } = await supabase
+      .from("todo")
+      .update({ checked: !checked })
+      .eq("id", id)
+      .select();
     const updatedTodoList = todoList.map((item) =>
-      item.id === id ? { ...item, checked: !item.checked } : item
+      item.id === id ? data[0] : item
     );
     setTodoList(updatedTodoList);
   };
 
-  const handleDelete = (id) => {
-    const updatedTodoList = todoList.filter((item) => item.id !== id);
-    setTodoList(updatedTodoList);
+  const handleDelete = async (selectedId) => {
+    const { data, error } = await supabase
+      .from("todo")
+      .delete()
+      .eq("id", selectedId);
+    if (error) {
+      console.error("Error deleting data:", error);
+    } else {
+      setTodoList((prevItems) =>
+        prevItems.filter((item) => item.id !== selectedId)
+      );
+    }
   };
 
   return (
@@ -67,7 +80,7 @@ function TodoList() {
                   checked={item.checked}
                   onChange={() => handleToggleCheck(item.id)}
                 />
-                {todoList}
+                {item.task}
               </label>
               <div>
                 <button
