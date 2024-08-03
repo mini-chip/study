@@ -18,9 +18,8 @@ function TodoList() {
   };
 
   const handleClickButton = async () => {
-    //추가버튼을 클릭했을때
     if (!todo.trim()) return;
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("todo")
       .insert([{ task: todo.trim(), checked: false }])
       .select();
@@ -29,7 +28,7 @@ function TodoList() {
   };
 
   const handleToggleCheck = async (id, checked) => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from("todo")
       .update({ checked: !checked })
       .eq("id", id)
