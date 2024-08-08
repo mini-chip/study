@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./TodoList.css";
 import supabase from "../../main";
+import DeleteModal from "../modal/DeleteModal";
 function TodoList() {
   const [todo, setTodo] = useState("");
   const [todoList, setTodoList] = useState([]);
@@ -39,20 +40,6 @@ function TodoList() {
     setTodoList(updatedTodoList);
   };
 
-  const handleDelete = async (selectedId) => {
-    const { data, error } = await supabase
-      .from("todo")
-      .delete()
-      .eq("id", selectedId);
-    if (error) {
-      console.error("Error deleting data:", error);
-    } else {
-      setTodoList((prevItems) =>
-        prevItems.filter((item) => item.id !== selectedId)
-      );
-    }
-  };
-
   return (
     <div className="form">
       <h1>TodoList</h1>
@@ -88,7 +75,7 @@ function TodoList() {
                 >
                   ✏️
                 </button>
-                <button type="button" onClick={() => handleDelete(item.id)}>
+                <button type="button" onClick={DeleteModal(item.id)}>
                   삭제
                 </button>
               </div>
