@@ -59,3 +59,8 @@ button:hover {
   align-items: center;
   gap: 10px;
 }
+.modalButtons {
+  display: flex;
+  gap: 10px;
+  color: #fff;
+}

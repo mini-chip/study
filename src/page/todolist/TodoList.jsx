@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import "./TodoList.css";
 import supabase from "../../main";
+import DeleteModal from "../modal/DeleteModal";
 
 function TodoList() {
   const [todo, setTodo] = useState("");
   const [todoList, setTodoList] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editTodo, setEditTodo] = useState("");
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -38,6 +42,7 @@ function TodoList() {
       item.id === id ? data[0] : item
     );
     setTodoList(updatedTodoList);
+    setIsModalOpen(false);
   };
 
   const handleToggleDelete = async (selectedId) => {
@@ -52,8 +57,12 @@ function TodoList() {
         prevItems.filter((item) => item.id !== selectedId)
       );
     }
-    setModal(!modal);
   };
+  const handleToggleEdit = async (item) => {
+    setEditTodo(item.task);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="form">
       <h1>TodoList</h1>
@@ -83,18 +92,39 @@ function TodoList() {
                 {item.task}
               </label>
               <div>
+                <button type="button" onClick={() => handleToggleEdit(item.id)}>
+                  수정
+                </button>
+                {isEditOpen && (
+                  <EditModal
+                    isModalOpen={isModalOpen}
+                    selectedId={item.id}
+                    onClose={() => setIsModalOpen(false)}
+                    onDelete={handleToggleDelete}
+                  />
+                )}
                 <button
                   type="button"
                   onClick={() => handleToggleCheck(item.id)}
                 >
-                  ✏️
+                  완료
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleToggleDelete(item.id)}
+                  onClick={() => {
+                    setIsModalOpen(true);
+                  }}
                 >
                   삭제
                 </button>
+                {isModalOpen && (
+                  <DeleteModal
+                    isModalOpen={isModalOpen}
+                    selectedId={item.id}
+                    onClose={() => setIsModalOpen(false)}
+                    onDelete={handleToggleDelete}
+                  />
+                )}
               </div>
             </li>
           ))}
