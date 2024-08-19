@@ -1,10 +1,17 @@
+import React from "react";
 import Modal from "../modal/Modal";
 
-function DeleteModal({ isOpen, onClose, onDelete, selectedId }) {
+function EditModal({ isOpen, onClose, onSave, editTodo, onTodoChange }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div>
-        <p>삭제하시겠습니까?</p>
+        <h2>할 일 수정</h2>
+        <input
+          type="text"
+          value={editTodo}
+          onChange={onTodoChange}
+          placeholder="수정할 할 일을 입력하세요"
+        />
         <div className="modalButtons">
           <button type="button" onClick={onClose}>
             취소
@@ -12,11 +19,11 @@ function DeleteModal({ isOpen, onClose, onDelete, selectedId }) {
           <button
             type="button"
             onClick={() => {
-              onDelete(selectedId);
+              onSave(editTodo);
               onClose();
             }}
           >
-            삭제
+            저장
           </button>
         </div>
       </div>
@@ -24,4 +31,4 @@ function DeleteModal({ isOpen, onClose, onDelete, selectedId }) {
   );
 }
 
-export default DeleteModal;
+export default EditModal;

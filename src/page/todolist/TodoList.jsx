@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import "./TodoList.css";
 import supabase from "../../main";
 import DeleteModal from "../modal/DeleteModal";
-
+import EditModal from "../modal/EditModal";
 function TodoList() {
   const [todo, setTodo] = useState("");
   const [todoList, setTodoList] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTodo, setEditTodo] = useState("");
-
+  const [selectedId, setSelectedId] = useState(null);
   useEffect(() => {
     const fetchTodos = async () => {
       const { data, error } = await supabase.from("todo").select("*");
@@ -59,8 +59,17 @@ function TodoList() {
     }
   };
   const handleToggleEdit = async (item) => {
-    setEditTodo(item.task);
-    setIsModalOpen(true);
+    const { data } = await supabase
+      .from("todo")
+      .update({ task: editTodo })
+      .eq("id", id)
+      .select();
+    if (error) {
+      console.error("Error deleting data:", error);
+    } else {
+      setEditTodo(item.task);
+      setIsModalOpen(true);
+    }
   };
 
   return (
@@ -92,7 +101,7 @@ function TodoList() {
                 {item.task}
               </label>
               <div>
-                <button type="button" onClick={() => handleToggleEdit(item.id)}>
+                <button type="button" onClick={() => setIsEditOpen(true)}>
                   수정
                 </button>
                 {isEditOpen && (
