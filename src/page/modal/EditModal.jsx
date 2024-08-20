@@ -12,7 +12,7 @@ function EditModal({ isOpen, onClose, onSave, editTodo, onTodoChange }) {
           onChange={onTodoChange}
           placeholder="수정할 할 일을 입력하세요"
         />
-        <div className="modalButtons">
+        <div>
           <button type="button" onClick={onClose}>
             취소
           </button>

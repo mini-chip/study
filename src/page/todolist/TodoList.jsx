@@ -2,18 +2,24 @@ import { useState, useEffect } from "react";
 import "./TodoList.css";
 import supabase from "../../main";
 import DeleteModal from "../modal/DeleteModal";
-import EditModal from "../modal/EditModal";
+import EditModal from "../modal/EditModal"; // 수정 모달을 임포트합니다.
+
 function TodoList() {
   const [todo, setTodo] = useState("");
   const [todoList, setTodoList] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editTodo, setEditTodo] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+
   useEffect(() => {
     const fetchTodos = async () => {
       const { data, error } = await supabase.from("todo").select("*");
-      setTodoList(data);
+      if (error) {
+        console.error("Error fetching data:", error);
+      } else {
+        setTodoList(data);
+      }
     };
     fetchTodos();
   }, []);
@@ -42,33 +48,42 @@ function TodoList() {
       item.id === id ? data[0] : item
     );
     setTodoList(updatedTodoList);
-    setIsModalOpen(false);
   };
 
-  const handleToggleDelete = async (selectedId) => {
-    const { data, error } = await supabase
-      .from("todo")
-      .delete()
-      .eq("id", selectedId);
+  const handleToggleDelete = async () => {
+    const { error } = await supabase.from("todo").delete().eq("id", selectedId);
     if (error) {
       console.error("Error deleting data:", error);
     } else {
       setTodoList((prevItems) =>
         prevItems.filter((item) => item.id !== selectedId)
       );
+      setIsDeleteModalOpen(false);
+      setSelectedId(null);
     }
   };
-  const handleToggleEdit = async (item) => {
-    const { data } = await supabase
+
+  const handleOpenEditModal = (item) => {
+    setSelectedId(item.id);
+    setEditTodo(item.task);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    const { error } = await supabase
       .from("todo")
       .update({ task: editTodo })
-      .eq("id", id)
-      .select();
+      .eq("id", selectedId);
     if (error) {
-      console.error("Error deleting data:", error);
+      console.error("Error updating data:", error);
     } else {
-      setEditTodo(item.task);
-      setIsModalOpen(true);
+      const updatedTodoList = todoList.map((item) =>
+        item.id === selectedId ? { ...item, task: editTodo } : item
+      );
+      setTodoList(updatedTodoList);
+      setIsEditModalOpen(false);
+      setSelectedId(null);
+      setEditTodo("");
     }
   };
 
@@ -96,49 +111,51 @@ function TodoList() {
                   type="checkbox"
                   id={`checkbox${item.id}`}
                   checked={item.checked}
-                  onChange={() => handleToggleCheck(item.id)}
+                  onChange={() => handleToggleCheck(item.id, item.checked)}
                 />
                 {item.task}
               </label>
               <div>
-                <button type="button" onClick={() => setIsEditOpen(true)}>
+                <button type="button" onClick={() => handleOpenEditModal(item)}>
                   수정
-                </button>
-                {isEditOpen && (
-                  <EditModal
-                    isModalOpen={isModalOpen}
-                    selectedId={item.id}
-                    onClose={() => setIsModalOpen(false)}
-                    onDelete={handleToggleDelete}
-                  />
-                )}
-                <button
-                  type="button"
-                  onClick={() => handleToggleCheck(item.id)}
-                >
-                  완료
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    setIsModalOpen(true);
+                    setSelectedId(item.id);
+                    setIsDeleteModalOpen(true);
                   }}
                 >
                   삭제
                 </button>
-                {isModalOpen && (
-                  <DeleteModal
-                    isModalOpen={isModalOpen}
-                    selectedId={item.id}
-                    onClose={() => setIsModalOpen(false)}
-                    onDelete={handleToggleDelete}
-                  />
-                )}
               </div>
             </li>
           ))}
         </ul>
       </div>
+      {isDeleteModalOpen && (
+        <DeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setSelectedId(null);
+          }}
+          onDelete={handleToggleDelete}
+        />
+      )}
+      {isEditModalOpen && (
+        <EditModal
+          isOpen={isEditModalOpen}
+          editTodo={editTodo}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedId(null);
+            setEditTodo("");
+          }}
+          onSave={handleSaveEdit}
+          onTodoChange={(e) => setEditTodo(e.target.value)}
+        />
+      )}
     </div>
   );
 }

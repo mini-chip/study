@@ -5,7 +5,7 @@ function DeleteModal({ isOpen, onClose, onDelete, selectedId }) {
     <Modal isOpen={isOpen} onClose={onClose}>
       <div>
         <p>삭제하시겠습니까?</p>
-        <div className="modalButtons">
+        <div>
           <button type="button" onClick={onClose}>
             취소
           </button>
