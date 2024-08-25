@@ -1,0 +1,44 @@
+/* Navbar.css */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  padding: 10px 20px;
+  color: white;
+}
+
+.navbar h1 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.navbar-user,
+.navbar-auth {
+  display: flex;
+  align-items: center;
+}
+
+.user-email {
+  margin-right: 15px;
+  font-weight: bold;
+}
+
+.logout-button,
+.login-button,
+.signup-button {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-left: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover,
+.login-button:hover,
+.signup-button:hover {
+  background-color: #555;
+}

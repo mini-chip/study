@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import "./TodoList.css";
 import supabase from "../../main";
 import DeleteModal from "../modal/DeleteModal";
-import EditModal from "../modal/EditModal"; // 수정 모달을 임포트합니다.
+import EditModal from "../modal/EditModal";
 
 function TodoList() {
   const [todo, setTodo] = useState("");
