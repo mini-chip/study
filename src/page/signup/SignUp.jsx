@@ -2,11 +2,10 @@ import "./SignUp.css";
 import { useState } from "react";
 import supabase from "../../main";
 import { useNavigate } from "react-router-dom";
-function SignUp() {
+function SignUp({ user, setUser }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
 
   const onChangeEmail = (e) => {
     setEmail(e.target.value);
@@ -48,9 +47,9 @@ function SignUp() {
     );
   } else {
     return (
-      <div>
+      <div className="logged-in-message">
         Logged in!
-        <button>로그아웃</button>
+        <button onClick={() => navigate("/")}>로그아웃</button>
       </div>
     );
   }

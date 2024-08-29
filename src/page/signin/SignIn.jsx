@@ -3,11 +3,10 @@ import { useState } from "react";
 import supabase from "../../main";
 import { useNavigate } from "react-router-dom";
 
-function SignIn() {
+function SignIn({ user, setUser }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
 
   const onChangeEmail = (e) => {
     setEmail(e.target.value);
@@ -25,6 +24,7 @@ function SignIn() {
     });
     console.log("signin: ", { data, error });
     setUser(data.user);
+    navigate("/todolist");
   };
 
   if (!user) {
@@ -51,13 +51,6 @@ function SignIn() {
           회원가입
         </button>
       </form>
-    );
-  } else {
-    return (
-      <div className="logged-in-message">
-        Logged in!
-        <button>로그아웃</button>
-      </div>
     );
   }
 }

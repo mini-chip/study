@@ -1,24 +1,36 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Navbar.css";
 import supabase from "../main";
 
-function Navbar() {
-  const [user, setUser] = useState(null);
+function Navbar({ user, setUser }) {
   const navigate = useNavigate();
 
+  // useEffect(() => {
+  //   const fetchUser = async () => {
+  //     const {
+  //       data: { session }
+  //     } = await supabase.auth.getSession();
+  //     if (session) {
+  //       setUser(session.user);
+  //     }
+  //   };
+  //   fetchUser();
+  // }, [user]);
+
   useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
         setUser(session.user);
+      } else {
+        setUser(null);
       }
-    };
-    fetchUser();
-  }, []);
+    });
 
+    return () => subscription.unsubscribe();
+  }, [user]);
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
